@@ -4,22 +4,15 @@ defmodule ElixirSdetExerciseTest do
   use ExUnit.Case
   alias Helpers
 
-  setup do
-    Hound.start_session()
-    :ok
-  end
+  hound_session()
 
-  def screenshot(name) do
-    screenshot_directory = File.mkdir_p("./support/screenshots")
-    take_screenshot("./support/screenshots/#{name}_#{DateTime.utc_now()}.png")
-  end
-
-  @tag :skip
+  # @tag :skip
   test "Goes to Facebook Login page" do
     navigate_to("https://facebook.com")
     IO.inspect(page_title())
   end
 
+  # @tag :skip
   test "Doesn't allow naughty words in name", context do
     navigate_to("https://facebook.com")
     fields_map = Helpers.assign_selectors()
@@ -36,23 +29,20 @@ defmodule ElixirSdetExerciseTest do
 
     click(fields_map[:gender_male])
     click(fields_map[:sign_up_button])
-    :timer.sleep(1500)
 
-    try do
-      warning_text =
-        "We require everyone to use the name they use in everyday life, what their friends call them, on Facebook. Learn more about our name policies."
+    warning_text =
+      "We require everyone to use the name they use in everyday life, what their friends call them, on Facebook. Learn more about our name policies."
 
-      assert visible_in_element?({:id, "reg_error_inner"}, ~r/#{warning_text}/)
-    catch
-      error ->
-        Map.get(context, :test)
-        |> to_string()
-        |> screenshot()
-
-        IO.inspect(error)
+    assert Helpers.poll_element({:id, "reg_error_inner"}, ~r/#{warning_text}/, 20) do
+      :truthy
+    else
+      Map.get(context, :test)
+      |> to_string()
+      |> Helpers.get_screenshot()
     end
   end
 
+  # @tag :skip
   test "Doesn't allow symbols in names", context do
     navigate_to("https://facebook.com")
     fields_map = Helpers.assign_selectors()
@@ -68,23 +58,20 @@ defmodule ElixirSdetExerciseTest do
 
     click(fields_map[:gender_male])
     click(fields_map[:sign_up_button])
-    :timer.sleep(1500)
 
-    try do
-      warning_text =
-        "This name has certain characters that aren't allowed. Learn more about our name policies."
+    warning_text =
+      "This name has certain characters that aren't allowed. Learn more about our name policies."
 
-      assert visible_in_element?({:id, "reg_error_inner"}, ~r/#{warning_text}/)
-    catch
-      error ->
-        Map.get(context, :test)
-        |> to_string()
-        |> screenshot()
-
-        IO.inspect(error)
+    assert Helpers.poll_element({:id, "reg_error_inner"}, ~r/#{warning_text}/, 20) do
+      :truthy
+    else
+      Map.get(context, :test)
+      |> to_string()
+      |> Helpers.get_screenshot()
     end
   end
 
+  # @tag :skip
   test "Doesn't allow long names", context do
     navigate_to("https://facebook.com")
     fields_map = Helpers.assign_selectors()
@@ -100,24 +87,21 @@ defmodule ElixirSdetExerciseTest do
 
     click(fields_map[:gender_male])
     click(fields_map[:sign_up_button])
-    :timer.sleep(1500)
+    :timer.sleep(30000)
 
-    try do
-      warning_text =
-        "First or last names on Facebook can't have too many characters. Learn more about our name policies."
+    warning_text =
+      "First or last names on Facebook can't have too many characters. Learn more about our name policies."
 
-      assert visible_in_element?({:id, "reg_error_inner"}, ~r/#{warning_text}/)
-    catch
-      error ->
-        Map.get(context, :test)
-        |> to_string()
-        |> screenshot()
-
-        IO.inspect(error)
+    assert Helpers.poll_element({:id, "reg_error_inner"}, ~r/#{warning_text}/, 20) do
+      :truthy
+    else
+      Map.get(context, :test)
+      |> to_string()
+      |> Helpers.get_screenshot()
     end
   end
 
-  # Bobby Tables
+  # @tag :skip
   test "Doesn't allow injection attacks", context do
     navigate_to("https://facebook.com")
     fields_map = Helpers.assign_selectors()
@@ -132,24 +116,20 @@ defmodule ElixirSdetExerciseTest do
 
     click(fields_map[:gender_male])
     click(fields_map[:sign_up_button])
-    :timer.sleep(20000) # super long wait for this one
 
-    try do
-      warning_text =
-        "This name has certain characters that aren't allowed. Learn more about our name policies."
+    warning_text =
+      "This name has certain characters that aren't allowed. Learn more about our name policies."
 
-      assert visible_in_element?({:id, "reg_error_inner"}, ~r/#{warning_text}/)
-    catch
-      error ->
-        Map.get(context, :test)
-        |> to_string()
-        |> screenshot()
-
-        IO.inspect(error)
+    assert Helpers.poll_element({:id, "reg_error_inner"}, ~r/#{warning_text}/, 20) do
+      :truthy
+    else
+      Map.get(context, :test)
+      |> to_string()
+      |> Helpers.get_screenshot()
     end
   end
 
-
+  # @tag :skip
   test "Doesn't allow minors to register", context do
     navigate_to("https://facebook.com")
     fields_map = Helpers.assign_selectors()
@@ -164,38 +144,22 @@ defmodule ElixirSdetExerciseTest do
 
     click(fields_map[:gender_male])
     click(fields_map[:sign_up_button])
-    :timer.sleep(1500)
 
-    try do
-      warning_text =
-        "We Couldn't Create Your Account.\nWe were not able to sign you up for Facebook."
+    warning_text =
+      "We Couldn't Create Your Account.\nWe were not able to sign you up for Facebook."
 
-      assert visible_in_element?({:id, "softblock_error_inner"}, ~r/#{warning_text}/)
-    catch
-      error ->
-        Map.get(context, :test)
-        |> to_string()
-        |> screenshot()
-
-        IO.inspect(error)
+    assert Helpers.poll_element({:id, "reg_error_inner"}, ~r/#{warning_text}/, 20) do
+      :truthy
+    else
+      Map.get(context, :test)
+      |> to_string()
+      |> Helpers.get_screenshot()
     end
   end
 
-  #different login page
-  # test "Visit new page after X login attempts" do
-  #   navigate_to("https://facebook.com")
-  #   page_title = page_title()
-  #   find_element(:id, "email") |> fill_field("jason@gmail.com")
-  #   find_element(:id, "pass") |> fill_field("jasonsfavoritewebsite")
-  #   find_element(:login, "login") |> click()
-
-
-  #   new_page_title = page_title()
-  #   refute page_title == new_page_title
-  # end
+  # To be implemented
   # Doesn't allow too short of a password
-  # Doesn't allow simple-sequence passwords
-  # Doesn't allow empty fields
+  # Doesn't allow simple-sequence passwords e.g. '123456'
   # Doesn't allow invalid email address domains
   # Doesn't allow invalid email prefix
   # Doesn't allow mismatched email values in confirm field
@@ -211,9 +175,6 @@ defmodule ElixirSdetExerciseTest do
   # Doesn't allow submission without date of birth present
   # Doesn't allow submission without gender selection present
   # Doesn't allow submission without pronoun selection present
-  # choose radio button
   # choose other and fill field
   # Doesn't allow submission with no values entered
-  # Doesn't allow
-  # Doesn't allow
 end
