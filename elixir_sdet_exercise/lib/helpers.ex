@@ -67,7 +67,7 @@ defmodule Helpers do
           Regex.t(),
           integer()
         ) :: true
-  def poll_element(element, criteria, duration) do
+  def poll_element(element, criteria, duration) when duration > 0 do
     case visible_in_element?(element, criteria) do
       true ->
         true
